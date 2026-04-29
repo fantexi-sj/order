@@ -1,40 +1,103 @@
 import { View, Text, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+import { useState, useEffect } from 'react'
+import useUserStore from '../../store/user'
+import useShopStore from '../../store/shop'
+import { auth } from '../../utils/auth'
+import { storage } from '../../utils/storage'
+import { merchantApi } from '../../api/merchant'
+import LoginModal from '../../components/LoginModal'
 
 import './index.scss'
 
 function Index() {
-  const handleDineIn = () => {
-    console.log('堂食点单')
+  const { getUserName, getUserAvatar, isLoggedIn, initUserInfo } = useUserStore()
+  const { setShopInfo, getShopName, getBusinessHours, getShopAddress } = useShopStore()
+  const [showLoginModal, setShowLoginModal] = useState(false)
+
+  useEffect(() => {
+    checkLoginStatus()
+    fetchMerchantInfo()
+  }, [])
+
+  const fetchMerchantInfo = async () => {
+    try {
+      const res = await merchantApi.getMerchantInfo()
+      setShopInfo(res.data)
+    } catch (error) {
+      console.log('获取商家信息失败:', error)
+    }
   }
 
-  const handleTakeout = () => {
-    console.log('到店自取')
+  const checkLoginStatus = async () => {
+    const token = await storage.getToken()
+    
+    if (token) {
+      const userInfo = await storage.getUserInfo()
+      if (userInfo) {
+        initUserInfo(userInfo)
+      }
+    } else {
+      setTimeout(() => {
+        setShowLoginModal(true)
+      }, 500)
+    }
   }
 
+  const handleCloseLoginModal = () => {
+    setShowLoginModal(false)
+  }
+
+  /**
+   * 堂食点单 - 扫描座位二维码
+   */
+  const handleDineIn = async () => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true)
+      return
+    }
+    try {
+      await storage.setOrderType('dine_in')
+      const res = await Taro.scanCode({
+        scanType: ['qrCode']
+      })
+      console.log('扫码结果:', res.result)
+      Taro.switchTab({ url: '/pages/BrowseMenuList/index' })
+    } catch (error) {
+      console.log('扫码取消或失败:', error)
+    }
+  }
+
+  /**
+   * 跳转到店自取页面
+   */
+  const handleTakeout = async () => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true)
+      return
+    }
+    await storage.setOrderType('takeaway')
+    Taro.switchTab({ url: '/pages/BrowseMenuList/index' })
+  }
+
+  /**
+   * 打开路线导航
+   */
   const handleNavigation = () => {
     console.log('路线导航')
   }
 
- const UesrList = [
-  {
-    id: 1,
-    name: '范特西',
-    gender: 'male',
-    avatarUrl: 'https://img.3dmgame.com/uploads/images/news/20190120/1547978611_651168.jpg',
-    birthday: '2000-01-01',
-  },
- ]
 
- const shopList = [
-  {
-    id: 1,
-    shopname: '蛙大大牛蛙',
-    BusinessHours: '09:00 - 22:00',
-    address: '广东省东莞市麻涌镇 蛙大大牛蛙',
-  },
- ]
-
+  /**
+   * 跳转到编辑个人资料页面
+   */
+  const handleEditProfile = () => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true)
+      return
+    }
+    Taro.navigateTo({ url: '/pages/EditProfile/index' })
+  }
 
   return (
     <View className='home-page'>
@@ -107,16 +170,16 @@ function Index() {
       </View>
 
       {/* 用户信息卡片 */}
-      <View className='user-card'>
+      <View className='user-card' onClick={handleEditProfile}>
         <View className='avatar-wrapper'>
           <Image
             className='avatar'
-            src={UesrList[0]?.avatarUrl || '/assets/tabbar/user.png'}
+            src={getUserAvatar()}
             mode='aspectFill'
             onError={() => {}}
           />
         </View>
-        <Text className='nickname'>{UesrList[0]?.name || '游客'}</Text>
+        <Text className='nickname'>{getUserName()}</Text>
       </View>
 
       {/* 功能区域 */}
@@ -157,13 +220,13 @@ function Index() {
         <View className='merchant-card'>
           <View>
             <View className='merchant-header'>
-            <Text className='merchant-name'>{shopList[0]?.shopname || '店铺商家'}</Text>
+            <Text className='merchant-name'>{getShopName()}</Text>
           </View>
           <View className='merchant-info'>
-            <Text className='info-text'>营业时间：{shopList[0]?.BusinessHours || '暂未营业'}</Text>
+            <Text className='info-text'>营业时间：{getBusinessHours()}</Text>
           </View>
           <View className='merchant-info'>
-            <Text className='info-text'>地址：{shopList[0]?.address ||'暂无地址'}</Text>  
+            <Text className='info-text'>地址：{getShopAddress()}</Text>  
           </View>
         </View>
         <View className='nav-btn' onClick={handleNavigation}>
@@ -173,6 +236,8 @@ function Index() {
         </View>
         
       </View>
+
+      <LoginModal visible={showLoginModal} onClose={handleCloseLoginModal} />
     </View>
   )
 }

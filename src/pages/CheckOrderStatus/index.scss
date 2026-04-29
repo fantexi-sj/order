@@ -1,3 +1,489 @@
+@import '../../styles/variables.scss';
+
 .check-order-status {
+  min-height: 100vh;
+  background: $bg-color;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+}
+
+/* ========== 用户信息区域 ========== */
+.user-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 48rpx 40rpx 32rpx;
+  background: #FFFFFF;
+}
+
+.user-name {
+  font-size: 52rpx;
+  font-weight: 700;
+  color: $text-primary;
+  letter-spacing: 2rpx;
+}
+
+.user-avatar {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: $border-radius-round;
+  border: 6rpx solid #F5F5F5;
+  background-color: #E0E0E0;
+}
+
+/* ========== 注册/登录会员横幅 ========== */
+.member-banner {
+  margin: 24rpx 24rpx 0;
+  padding: 28rpx 32rpx;
+  background: linear-gradient(135deg, #2C2C2C 0%, #1A1A1A 100%);
+  border-radius: $border-radius-md;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.15);
+}
+
+.banner-left {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex: 1;
+}
+
+.banner-icon {
+  font-size: 36rpx;
+}
+
+.banner-text {
+  font-size: 26rpx;
+  color: #FFFFFF;
+  opacity: 0.9;
+  letter-spacing: 1rpx;
+}
+
+.banner-right {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 14rpx 28rpx;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 30rpx;
+  backdrop-filter: blur(10rpx);
+}
+
+.banner-btn-text {
+  font-size: 26rpx;
+  color: #FFFFFF;
+  font-weight: 500;
+}
+
+.banner-arrow {
+  font-size: 28rpx;
+  color: #FFFFFF;
+  font-weight: bold;
+}
+
+/* ========== 数据统计区域 ========== */
+.stats-card {
+  margin: 24rpx;
+  padding: 36rpx 24rpx;
+  background: #FFFFFF;
+  border-radius: $border-radius-lg;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: $shadow-card;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 38rpx;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.stat-label {
+  font-size: 26rpx;
+  color: $text-secondary;
+  letter-spacing: 1rpx;
+}
+
+.stat-disabled {
+  opacity: 0.6;
+}
+
+.stat-placeholder {
+  font-size: 24rpx;
+  color: $text-light;
+  margin-bottom: -12rpx;
+}
+
+/* 二维码图标 */
+.qrcode-icon {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4rpx;
+}
+
+.qr-code {
+  width: 48rpx;
+  height: 48rpx;
+  background:
+    linear-gradient(90deg, #333 4rpx, transparent 4rpx) 0 0 / 10rpx 10rpx,
+    linear-gradient(#333 4rpx, transparent 4rpx) 0 0 / 10rpx 10rpx;
+  border: 3rpx solid #333;
+  border-radius: 6rpx;
+}
+
+/* ========== 广告横幅 ========== */
+.ad-banner {
+  margin: 24rpx;
+  padding: 32rpx;
+  background: linear-gradient(135deg, #FFF8E7 0%, #FFE8CC 50%, #FFD699 100%);
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-card;
+  overflow: hidden;
+}
+
+.ad-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.ad-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.ad-title {
+  font-size: 72rpx;
+  font-weight: 900;
+  color: #D84315;
+  letter-spacing: 8rpx;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  line-height: 1;
+}
+
+.ad-subtitle {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  margin-top: 8rpx;
+}
+
+.ad-en {
+  font-size: 22rpx;
+  color: #666;
+  font-style: italic;
+  letter-spacing: 1rpx;
+}
+
+.ad-cn {
+  font-size: 24rpx;
+  color: #888;
+  letter-spacing: 2rpx;
+}
+
+.ad-slogan {
+  font-size: 28rpx;
+  color: #444;
+  font-weight: 600;
+  letter-spacing: 4rpx;
+  margin-top: 8rpx;
+}
+
+.ad-right {
+  width: 280rpx;
+  height: 200rpx;
+  position: relative;
+}
+
+.food-image-wrapper {
   width: 100%;
+  height: 100%;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  box-shadow: 0 8rpx 24rpx rgba(216, 67, 21, 0.2);
+}
+
+.food-image {
+  width: 100%;
+  height: 100%;
+}
+
+/* ========== 服务中心 ========== */
+.service-section {
+  margin: 24rpx;
+  padding: 32rpx;
+  background: #FFFFFF;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-card;
+}
+
+.service-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: $text-primary;
+  margin-bottom: 32rpx;
+  letter-spacing: 2rpx;
+}
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32rpx 16rpx;
+}
+
+.service-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+  padding: 20rpx 12rpx;
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+}
+
+.service-icon {
+  width: 88rpx;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.service-label {
+  font-size: 24rpx;
+  color: $text-secondary;
+  text-align: center;
+  letter-spacing: 1rpx;
+}
+
+/* 礼物图标 */
+.gift-icon .gift-box {
+  position: relative;
+  width: 64rpx;
+  height: 64rpx;
+}
+
+.gift-lid {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 72rpx;
+  height: 18rpx;
+  background: linear-gradient(180deg, #E53935 0%, #C62828 100%);
+  border-radius: 6rpx 6rpx 0 0;
+}
+
+.gift-body {
+  position: absolute;
+  top: 16rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56rpx;
+  height: 46rpx;
+  background: linear-gradient(180deg, #EF5350 0%, #D32F2F 100%);
+  border-radius: 4rpx;
+}
+
+.gift-ribbon {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12rpx;
+  height: 62rpx;
+  background: linear-gradient(180deg, #FFB74D 0%, #FF9800 100%);
+  border-radius: 2rpx;
+  z-index: 1;
+}
+
+/* 定位图标 */
+.location-icon .location-pin {
+  position: relative;
+  width: 56rpx;
+  height: 72rpx;
+}
+
+.pin-head {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48rpx;
+  height: 48rpx;
+  background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 5rpx solid #FFFFFF;
+  box-shadow: 0 4rpx 12rpx rgba(76, 175, 80, 0.3);
+}
+
+.pin-shadow {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16rpx;
+  height: 12rpx;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+}
+
+/* 文档图标 */
+.privacy-icon .document {
+  width: 56rpx;
+  height: 64rpx;
+  background: linear-gradient(135deg, #FAFAFA 0%, #EEEEEE 100%);
+  border: 3rpx solid #BDBDBD;
+  border-radius: 6rpx;
+  padding: 12rpx 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+}
+
+.doc-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+  width: 100%;
+}
+
+.doc-line {
+  height: 4rpx;
+  background: #9E9E9E;
+  border-radius: 2rpx;
+
+  &.short {
+    width: 70%;
+  }
+}
+
+/* 电话图标 */
+.phone-icon .phone {
+  position: relative;
+  width: 48rpx;
+  height: 68rpx;
+}
+
+.phone-body {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #424242 0%, #212121 100%);
+  border-radius: 10rpx;
+  border: 3rpx solid #616161;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
+}
+
+.phone-screen {
+  position: absolute;
+  top: 8rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36rpx;
+  height: 48rpx;
+  background: linear-gradient(135deg, #81D4FA 0%, #4FC3F7 100%);
+  border-radius: 4rpx;
+}
+
+/* 地球/语言图标 */
+.language-icon .globe {
+  position: relative;
+  width: 60rpx;
+  height: 60rpx;
+}
+
+.globe-circle {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #42A5F5 0%, #1976D2 100%);
+  border-radius: 50%;
+  border: 3rpx solid #1565C0;
+  box-shadow: 0 4rpx 12rpx rgba(33, 150, 243, 0.3);
+}
+
+.globe-meridian {
+  position: absolute;
+  top: 6rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3rpx;
+  height: 48rpx;
+  background: #FFFFFF;
+  border-radius: 2rpx;
+}
+
+.globe-equator {
+  position: absolute;
+  top: 50%;
+  left: 6rpx;
+  right: 6rpx;
+  height: 3rpx;
+  background: #FFFFFF;
+  border-radius: 2rpx;
+  transform: translateY(-50%);
+}
+
+/* 酒杯/寄存图标 */
+.storage-icon .wine-glass {
+  position: relative;
+  width: 48rpx;
+  height: 68rpx;
+}
+
+.glass-body {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40rpx;
+  height: 36rpx;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(200, 200, 200, 0.3) 100%);
+  border: 3rpx solid #757575;
+  border-radius: 4rpx 4rpx 20rpx 20rpx;
+  clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
+}
+
+.glass-stem {
+  position: absolute;
+  top: 36rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4rpx;
+  height: 18rpx;
+  background: #9E9E9E;
+  border-radius: 2rpx;
+}
+
+.glass-base {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32rpx;
+  height: 8rpx;
+  background: #757575;
+  border-radius: 4rpx;
 }
