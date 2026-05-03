@@ -5,13 +5,15 @@ import useUserStore from '../../store/user'
 import useShopStore from '../../store/shop'
 import { auth } from '../../utils/auth'
 import { storage } from '../../utils/storage'
+import { pageCache } from '../../utils/cache'
 import { merchantApi } from '../../api/merchant'
+import { userApi } from '../../api/user'
 import LoginModal from '../../components/LoginModal'
 
 import './index.scss'
 
 function Index() {
-  const { getUserName, getUserAvatar, isLoggedIn, initUserInfo } = useUserStore()
+  const { userInfo, isLoggedIn, initUserInfo } = useUserStore()
   const { setShopInfo, getShopName, getBusinessHours, getShopAddress } = useShopStore()
   const [showLoginModal, setShowLoginModal] = useState(false)
 
@@ -21,9 +23,17 @@ function Index() {
   }, [])
 
   const fetchMerchantInfo = async () => {
+    const cached = pageCache.get<Parameters<typeof setShopInfo>[0]>('merchant_info')
+    if (cached) {
+      setShopInfo(cached)
+    }
+
     try {
       const res = await merchantApi.getMerchantInfo()
-      setShopInfo(res.data)
+      if (pageCache.isDifferent('merchant_info', res.data)) {
+        setShopInfo(res.data)
+        pageCache.set('merchant_info', res.data)
+      }
     } catch (error) {
       console.log('获取商家信息失败:', error)
     }
@@ -33,9 +43,23 @@ function Index() {
     const token = await storage.getToken()
     
     if (token) {
-      const userInfo = await storage.getUserInfo()
-      if (userInfo) {
-        initUserInfo(userInfo)
+      try {
+        const res = await userApi.getUserInfo()
+        const userData = res.data
+        
+        initUserInfo({
+          id: userData.id,
+          name: userData.name,
+          gender: userData.gender,
+          avatarUrl: userData.avatar_url,
+          birthday: userData.birthday ? userData.birthday.split('T')[0] : '2000-01-01'
+        })
+      } catch (error) {
+        console.error('Token 验证失败:', error)
+        await storage.clearAll()
+        setTimeout(() => {
+          setShowLoginModal(true)
+        }, 500)
       }
     } else {
       setTimeout(() => {
@@ -174,12 +198,12 @@ function Index() {
         <View className='avatar-wrapper'>
           <Image
             className='avatar'
-            src={getUserAvatar()}
+            src={userInfo.avatarUrl || '/assets/tabbar/user.png'}
             mode='aspectFill'
             onError={() => {}}
           />
         </View>
-        <Text className='nickname'>{getUserName()}</Text>
+        <Text className='nickname'>{userInfo.name || '游客'}</Text>
       </View>
 
       {/* 功能区域 */}

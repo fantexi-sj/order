@@ -1,5 +1,5 @@
 import { View, Text, Image, ScrollView } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useDidShow } from '@tarojs/taro';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import useMenuStore from '../../store/menu';
 import useShopStore from '../../store/shop';
@@ -7,8 +7,12 @@ import useCartStore from '../../store/cart';
 import useCartActions from '../../hooks/useCartActions';
 import { merchantApi } from '../../api/merchant';
 import { cartApi } from '../../api/cart';
+import { storage } from '../../utils/storage';
+import { pageCache } from '../../utils/cache';
 import type { CategoryItem, DishItem, SpecGroup, DishSpecsData } from '../../types/menu';
 import type { CartAddSpecItem } from '../../types/cart';
+import type { OrderType } from '../../types/order';
+import type { ShopInfo } from '../../types/shop';
 
 import './index.scss';
 
@@ -24,7 +28,7 @@ function BrowseMenuList() {
   const [scrollIntoViewId, setScrollIntoViewId] = useState('');
   const [loading, setLoading] = useState(true);
   const [showHeader, setShowHeader] = useState(true);
-  const [lastScrollTop, setLastScrollTop] = useState(0);
+  const lastScrollTop = useRef(0);
   const [selectedDish, setSelectedDish] = useState<DishItem | null>(null);
   const [showSpecModal, setShowSpecModal] = useState(false);
   const [specGroups, setSpecGroups] = useState<SpecGroup[]>([]);
@@ -34,12 +38,79 @@ function BrowseMenuList() {
   const [showCartPanel, setShowCartPanel] = useState(false);
   const isScrollingByClick = useRef(false);
   const categoryPositions = useRef<{ id: number; top: number }[]>([]);
+  const [scrollTop, setScrollTop] = useState(0);
+  const savedScrollTopRef = useRef(0);
+  const isModalTransitioning = useRef(false);
+  const [showNoticeDropdown, setShowNoticeDropdown] = useState(false);
+  const [orderType, setOrderType] = useState<OrderType>('dine_in');
+  const isFetching = useRef(false);
 
   useEffect(() => {
     fetchInitData();
   }, []);
 
+  useDidShow(() => {
+    getOrderType()
+    checkShowCartPanel()
+    refreshDataInBackground()
+  })
+
+  const refreshDataInBackground = async () => {
+    if (isFetching.current) return
+    isFetching.current = true
+
+    try {
+      const [merchantRes, dishRes] = await Promise.all([
+        merchantApi.getMerchantInfo(),
+        merchantApi.getDishList()
+      ])
+
+      if (pageCache.isDifferent('merchant_info', merchantRes.data)) {
+        setShopInfo(merchantRes.data)
+        pageCache.set('merchant_info', merchantRes.data)
+        checkBusinessStatus(merchantRes.data.business_hours)
+      }
+
+      if (pageCache.isDifferent('dish_list', dishRes.data)) {
+        setCategories(dishRes.data)
+        pageCache.set('dish_list', dishRes.data)
+      }
+    } catch (error) {
+      console.error('后台刷新数据失败:', error)
+    } finally {
+      isFetching.current = false
+    }
+  }
+
+  const checkShowCartPanel = async () => {
+    const shouldShow = await storage.getShowCartPanel()
+    if (shouldShow) {
+      await storage.removeShowCartPanel()
+      setShowCartPanel(true)
+    }
+  };
+
+  const getOrderType = async () => {
+    const type = await storage.getOrderType();
+    if (type === 'dine_in' || type === 'takeaway') {
+      setOrderType(type);
+    }
+  };
+
   const fetchInitData = async () => {
+    const cachedMerchant = pageCache.get<ShopInfo>('merchant_info')
+    const cachedDishes = pageCache.get<CategoryItem[]>('dish_list')
+
+    if (cachedMerchant && cachedDishes) {
+      setShopInfo(cachedMerchant)
+      setCategories(cachedDishes)
+      checkBusinessStatus(cachedMerchant.business_hours)
+      setLoading(false)
+      await fetchCartList()
+      refreshDataInBackground()
+      return
+    }
+
     try {
       setLoading(true);
       const [merchantRes, dishRes] = await Promise.all([
@@ -50,6 +121,9 @@ function BrowseMenuList() {
       setShopInfo(merchantRes.data);
       setCategories(dishRes.data);
       checkBusinessStatus(merchantRes.data.business_hours);
+
+      pageCache.set('merchant_info', merchantRes.data);
+      pageCache.set('dish_list', dishRes.data);
 
       await fetchCartList();
     } catch (error) {
@@ -96,11 +170,19 @@ function BrowseMenuList() {
   const handleCategoryClick = (categoryId: number) => {
     setCurrentCategory(categoryId);
     isScrollingByClick.current = true;
-    setScrollIntoViewId(`category-${categoryId}`);
+    const targetId = `category-${categoryId}`;
+    setScrollIntoViewId(targetId);
 
     setTimeout(() => {
+      const query = Taro.createSelectorQuery();
+      query.select('.dish-list').scrollOffset((res) => {
+        if (res) {
+          setScrollTop(res.scrollTop);
+        }
+      }).exec();
+      setScrollIntoViewId('');
       isScrollingByClick.current = false;
-    }, 300);
+    }, 350);
   };
 
   /** 计算各分类在右侧滚动区域中的位置 */
@@ -133,7 +215,7 @@ function BrowseMenuList() {
 
   /** 右侧菜品列表滚动时联动左侧分类高亮 */
   const handleScroll = useCallback((e: any) => {
-    if (isScrollingByClick.current) return;
+    if (isScrollingByClick.current || isModalTransitioning.current) return;
 
     const scrollTop = e.detail.scrollTop;
     const scrollViewHeight = e.detail.scrollHeight - e.detail.offsetHeight;
@@ -146,10 +228,10 @@ function BrowseMenuList() {
 
     if (scrollTop <= 0) {
       setShowHeader(true);
-    } else if (scrollTop > lastScrollTop && scrollTop > 50) {
+    } else if (scrollTop > lastScrollTop.current && scrollTop > 50) {
       setShowHeader(false);
     }
-    setLastScrollTop(scrollTop);
+    lastScrollTop.current = scrollTop;
 
     const query = Taro.createSelectorQuery();
     query.select('.dish-list').boundingClientRect();
@@ -172,7 +254,7 @@ function BrowseMenuList() {
         setCurrentCategory(activeCategoryId);
       }
     });
-  }, [categories, currentCategoryId, setCurrentCategory, lastScrollTop]);
+  }, [categories, currentCategoryId, setCurrentCategory]);
 
   /** 点击"选规格"按钮，调用后端接口获取规格数据并打开弹窗 */
   const handleSelectSpecs = async (dish: DishItem) => {
@@ -181,6 +263,7 @@ function BrowseMenuList() {
       return;
     }
 
+    savedScrollTopRef.current = lastScrollTop.current;
     setSelectedDish(dish);
     setSpecQuantity(1);
     setShowSpecModal(true);
@@ -226,11 +309,16 @@ function BrowseMenuList() {
 
   /** 关闭规格选择弹窗 */
   const handleCloseSpecModal = () => {
+    isModalTransitioning.current = true;
     setShowSpecModal(false);
     setSelectedDish(null);
     setSpecGroups([]);
     setSelectedOptions({});
     setSpecQuantity(1);
+    setScrollTop(savedScrollTopRef.current);
+    setTimeout(() => {
+      isModalTransitioning.current = false;
+    }, 400);
   };
 
   /** 选择某个规格组中的选项 */
@@ -350,7 +438,12 @@ function BrowseMenuList() {
   /** 清空购物车 */
   const handleClearCart = async () => {
     await clearAllCart();
+    isModalTransitioning.current = true;
     setShowCartPanel(false);
+    setScrollTop(savedScrollTopRef.current);
+    setTimeout(() => {
+      isModalTransitioning.current = false;
+    }, 400);
   };
 
   /** 点击去支付，调用结算接口并跳转到结算页面 */
@@ -388,7 +481,7 @@ function BrowseMenuList() {
     <View className='menu-container'>
       {/* 顶部搜索栏 */}
       <View className={`shop-header ${showHeader ? 'show' : 'hide'}`}>
-        <View className='search-bar'>
+        <View className='search-bar' onClick={() => Taro.navigateTo({ url: '/pages/SearchDish/index' })}>
           <Text className='search-icon'>🔍</Text>
           <Text className='search-placeholder'>搜一搜</Text>
         </View>
@@ -399,19 +492,24 @@ function BrowseMenuList() {
         <View className='shop-name-row'>
           <Text className='shop-name'>{getShopName()}</Text>
           <View className='pickup-btn'>
-            <Text className='pickup-text'>自提</Text>
+            <Text className='pickup-text'>{orderType === 'dine_in' ? '堂食' : '自取'}</Text>
           </View>
         </View>
         <Text className='distance-text'>距离您88m</Text>
-        <View className='notice-row'>
+        <View className={`notice-row ${showNoticeDropdown ? 'expanded' : ''}`}>
           <View className='notice-left'>
             <Text className='notice-icon'>📢</Text>
-            <Text className='notice-content'>
-              <Text className='notice-rating'>4.24公告：</Text>
+            <View className={`notice-content ${showNoticeDropdown ? 'expanded' : ''}`}>
+              <Text className='notice-rating'></Text>
               <Text className='notice-desc'>{getNotice()}</Text>
-            </Text>
+            </View>
           </View>
-          <Text className='more-btn'>更多 ∨</Text>
+          <Text 
+            className='more-btn'
+            onClick={() => setShowNoticeDropdown(!showNoticeDropdown)}
+          >
+            {showNoticeDropdown ? '隐藏 ∧' : '更多 ∨'}
+          </Text>
         </View>
       </View>
 
@@ -467,7 +565,8 @@ function BrowseMenuList() {
               className='dish-list'
               scrollY
               scrollWithAnimation
-              scrollIntoView={scrollIntoViewId}
+              scrollTop={scrollTop}
+              scrollIntoView={scrollIntoViewId || undefined}
               onScroll={handleScroll}
               enhanced
               showScrollbar={false}
@@ -569,7 +668,7 @@ function BrowseMenuList() {
 
       {/* 规格选择弹窗 */}
       {showSpecModal && selectedDish && (
-        <View className='spec-modal-mask' onClick={handleCloseSpecModal}>
+        <View className='spec-modal-mask' catchMove onClick={handleCloseSpecModal}>
           <View className='spec-modal-content' onClick={(e) => e.stopPropagation()}>
             {/* 顶部图片区域 */}
             <View className='spec-image-wrapper'>
@@ -652,7 +751,18 @@ function BrowseMenuList() {
           <View className={`cart-bar ${showCartPanel ? 'expanded' : ''}`}>
             <View
               className='cart-left-area'
-              onClick={() => setShowCartPanel(!showCartPanel)}
+              onClick={() => {
+                if (!showCartPanel) {
+                  savedScrollTopRef.current = lastScrollTop.current;
+                } else {
+                  isModalTransitioning.current = true;
+                  setScrollTop(savedScrollTopRef.current);
+                  setTimeout(() => {
+                    isModalTransitioning.current = false;
+                  }, 400);
+                }
+                setShowCartPanel(!showCartPanel);
+              }}
             >
               <View className='cart-icon-wrapper'>
                 <View className='cart-icon'>
@@ -675,7 +785,14 @@ function BrowseMenuList() {
 
           {/* 购物车展开面板 */}
           {showCartPanel && (
-            <View className='cart-panel-mask' onClick={() => setShowCartPanel(false)}>
+            <View className='cart-panel-mask' catchMove onClick={() => {
+              isModalTransitioning.current = true;
+              setShowCartPanel(false);
+              setScrollTop(savedScrollTopRef.current);
+              setTimeout(() => {
+                isModalTransitioning.current = false;
+              }, 400);
+            }}>
               <View className='cart-panel-content' onClick={(e) => e.stopPropagation()}>
                 <View className='cart-panel-header'>
                   <View

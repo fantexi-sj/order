@@ -4,6 +4,7 @@ const TOKEN_KEY = 'token'
 const OPENID_KEY = 'openid'
 const USER_INFO_KEY = 'userInfo'
 const ORDER_TYPE_KEY = 'orderType'
+const SHOW_CART_PANEL_KEY = 'showCartPanel'
 
 export const storage = {
   setToken: async (token: string): Promise<void> => {
@@ -93,6 +94,27 @@ export const storage = {
       await Taro.removeStorage({ key: ORDER_TYPE_KEY })
     } catch (error) {
       console.error('移除订单类型失败:', error)
+    }
+  },
+
+  setShowCartPanel: async (show: boolean): Promise<void> => {
+    await Taro.setStorage({ key: SHOW_CART_PANEL_KEY, data: show })
+  },
+
+  getShowCartPanel: async (): Promise<boolean> => {
+    try {
+      const res = await Taro.getStorage({ key: SHOW_CART_PANEL_KEY })
+      return res.data === true
+    } catch {
+      return false
+    }
+  },
+
+  removeShowCartPanel: async (): Promise<void> => {
+    try {
+      await Taro.removeStorage({ key: SHOW_CART_PANEL_KEY })
+    } catch (error) {
+      console.error('移除购物车弹窗标记失败:', error)
     }
   }
 }

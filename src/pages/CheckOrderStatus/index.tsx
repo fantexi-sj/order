@@ -1,11 +1,12 @@
 import { View, Text, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+import { Gift, MapPin, FileText, Phone, Globe, Wine } from 'lucide-react-taro'
 import useUserStore from '../../store/user'
 
 import './index.scss'
 
 function CheckOrderStatus() {
-  const { getUserName, getUserAvatar } = useUserStore()
+  const { userInfo, logout } = useUserStore()
 
   const handleServiceClick = (type: string) => {
     console.log('点击服务:', type)
@@ -28,8 +29,36 @@ function CheckOrderStatus() {
       case 'storage':
         Taro.showToast({ title: '我的寄存', icon: 'none' })
         break
+      case 'login':
+        handleLogout()
+        break
       default:
         break
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      Taro.showModal({
+        title: '提示',
+        content: '确定要退出登录吗？',
+        success: (res) => {
+          if (res.confirm) {
+            logout()
+            Taro.showToast({
+              title: '已退出登录',
+              icon: 'success'
+            })
+            Taro.reLaunch({ url: '/pages/index/index' })
+          }
+        }
+      })
+    } catch (error) {
+      console.error('退出登录失败:', error)
+      Taro.showToast({
+        title: '退出失败',
+        icon: 'none'
+      })
     }
   }
 
@@ -37,8 +66,8 @@ function CheckOrderStatus() {
     <View className='check-order-status'>
       {/* 用户信息区域 */}
       <View className='user-section'>
-        <Text className='user-name'>{getUserName()}</Text>
-        <Image className='user-avatar' src={getUserAvatar()} mode='aspectFill' />
+        <Text className='user-name'>{userInfo.name || '游客'}</Text>
+        <Image className='user-avatar' src={userInfo.avatarUrl || '/assets/tabbar/user.png'} mode='aspectFill' />
       </View>
 
       {/* 注册/登录会员横幅 */}
@@ -103,69 +132,51 @@ function CheckOrderStatus() {
         <Text className='service-title'>服务中心</Text>
         <View className='service-grid'>
           <View className='service-item' onClick={() => handleServiceClick('gift')}>
-            <View className='service-icon gift-icon'>
-              <View className='gift-box'>
-                <View className='gift-lid'></View>
-                <View className='gift-body'></View>
-                <View className='gift-ribbon'></View>
-              </View>
+            <View className='service-icon'>
+              <Gift size={24} color='#000' />
             </View>
             <Text className='service-label'>储值有礼</Text>
           </View>
 
           <View className='service-item' onClick={() => handleServiceClick('address')}>
-            <View className='service-icon location-icon'>
-              <View className='location-pin'>
-                <View className='pin-head'></View>
-                <View className='pin-shadow'></View>
-              </View>
+            <View className='service-icon'>
+              <MapPin size={24} color='#000' />
             </View>
             <Text className='service-label'>我的地址</Text>
           </View>
 
           <View className='service-item' onClick={() => handleServiceClick('privacy')}>
-            <View className='service-icon privacy-icon'>
-              <View className='document'>
-                <View className='doc-lines'>
-                  <View className='doc-line'></View>
-                  <View className='doc-line'></View>
-                  <View className='doc-line short'></View>
-                </View>
-              </View>
+            <View className='service-icon'>
+              <FileText size={24} color='#000' />
             </View>
             <Text className='service-label'>隐私政策</Text>
           </View>
 
           <View className='service-item' onClick={() => handleServiceClick('contact')}>
-            <View className='service-icon phone-icon'>
-              <View className='phone'>
-                <View className='phone-body'></View>
-                <View className='phone-screen'></View>
-              </View>
+            <View className='service-icon'>
+              <Phone size={24} color='#000' />
             </View>
             <Text className='service-label'>联系商家</Text>
           </View>
 
           <View className='service-item' onClick={() => handleServiceClick('language')}>
-            <View className='service-icon language-icon'>
-              <View className='globe'>
-                <View className='globe-circle'></View>
-                <View className='globe-meridian'></View>
-                <View className='globe-equator'></View>
-              </View>
+            <View className='service-icon'>
+              <Globe size={24} color='#000' />
             </View>
             <Text className='service-label'>切换语言</Text>
           </View>
 
           <View className='service-item' onClick={() => handleServiceClick('storage')}>
-            <View className='service-icon storage-icon'>
-              <View className='wine-glass'>
-                <View className='glass-body'></View>
-                <View className='glass-stem'></View>
-                <View className='glass-base'></View>
-              </View>
+            <View className='service-icon'>
+              <Wine size={24} color='#000' />
             </View>
             <Text className='service-label'>我的寄存</Text>
+          </View>
+          <View className='service-item' onClick={() => handleServiceClick('login')}>
+            <View className='service-icon'>
+              <Wine size={24} color='#000' />
+            </View>
+            <Text className='service-label'>退出登录</Text>
           </View>
         </View>
       </View>

@@ -6,7 +6,8 @@ export default defineAppConfig({
     'pages/PlaceAnOrderPayment/index',
     'pages/CheckOrderStatus/index',
     'pages/EditProfile/index',
-    'pages/Login/index',
+    'pages/OrderDetail/index',
+    'pages/SearchDish/index',
   ],
   window: {
     backgroundTextStyle: 'light',

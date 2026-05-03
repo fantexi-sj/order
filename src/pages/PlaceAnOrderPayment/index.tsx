@@ -3,10 +3,12 @@ import Taro from '@tarojs/taro'
 import { useState, useEffect } from 'react'
 import useShopStore from '../../store/shop'
 import useCartStore from '../../store/cart'
-import { cartApi } from '../../api/cart'
+import useUserStore from '../../store/user'
+import { orderApi } from '../../api/order'
 import { storage } from '../../utils/storage'
 import type { CartItem } from '../../types/cart'
 import type { OrderType, PaymentMethod, DateOption, TimeSlot } from '../../types/order'
+import LoginModal from '../../components/LoginModal'
 
 import './index.scss'
 
@@ -14,7 +16,8 @@ const MAX_VISIBLE_ITEMS = 3
 
 function PlaceAnOrderPayment() {
   const { getShopName, getShopAddress } = useShopStore()
-  const { getSelectedItems } = useCartStore()
+  const { getSelectedItems, clearCart } = useCartStore()
+  const { isLoggedIn } = useUserStore()
 
   const [orderType, setOrderType] = useState<OrderType>('takeaway')
   const [pickupTimeText, setPickupTimeText] = useState('现在取单')
@@ -23,6 +26,7 @@ function PlaceAnOrderPayment() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('wechat')
   const [showTimePicker, setShowTimePicker] = useState(false)
   const [showAllItems, setShowAllItems] = useState(false)
+  const [showLoginModal, setShowLoginModal] = useState(false)
 
   const [dateOptions, setDateOptions] = useState<DateOption[]>([])
   const [selectedDateIndex, setSelectedDateIndex] = useState(0)
@@ -150,8 +154,13 @@ function PlaceAnOrderPayment() {
     return item.specs.map((s) => s.option.name).join(' / ')
   }
 
-  /** 点击付款按钮，调用结算接口提交订单 */
+  /** 点击付款按钮，创建订单并支付 */
   const handlePay = async () => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true)
+      return
+    }
+
     if (orderType === 'takeaway' && !phone) {
       Taro.showToast({ title: '请填写预留电话', icon: 'none' })
       return
@@ -171,15 +180,42 @@ function PlaceAnOrderPayment() {
 
     try {
       Taro.showLoading({ title: '提交订单中...' })
-      await cartApi.getCheckout(cartIds)
+
+      const createRes = await orderApi.createOrder({
+        cart_ids: cartIds.join(','),
+        remark: remark || undefined,
+        order_type: orderType,
+        phone: phone || undefined
+      })
+
+      if (createRes.code !== 200) {
+        throw new Error(createRes.message || '创建订单失败')
+      }
+
+      const orderId = createRes.data.order_id
+
+      const payRes = await orderApi.payOrder(orderId)
+
       Taro.hideLoading()
 
-      Taro.showToast({ title: '下单成功', icon: 'success' })
-    } catch (error) {
+      if (payRes.code === 200) {
+        Taro.showToast({ title: '下单成功', icon: 'success' })
+        clearCart()
+        Taro.switchTab({ url: '/pages/ShoppingCart/index' })
+      } else {
+        throw new Error(payRes.message || '支付失败')
+      }
+    } catch (error: any) {
       Taro.hideLoading()
       console.error('提交订单失败:', error)
-      Taro.showToast({ title: '下单失败，请重试', icon: 'none' })
+      Taro.showToast({ title: error.message || '下单失败，请重试', icon: 'none' })
     }
+  }
+
+  /** 登录成功回调 */
+  const handleLoginSuccess = () => {
+    setShowLoginModal(false)
+    handlePay()
   }
 
   const visibleItems = getVisibleItems()
@@ -415,6 +451,11 @@ function PlaceAnOrderPayment() {
           </View>
         </View>
       )}
+
+      <LoginModal 
+        visible={showLoginModal} 
+        onClose={() => setShowLoginModal(false)}
+      />
     </View>
   )
 }

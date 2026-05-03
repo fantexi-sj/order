@@ -3,14 +3,15 @@ import Taro, { chooseImage, getUserProfile } from '@tarojs/taro'
 import { useState, useEffect } from 'react'
 import useUserStore from '../../store/user'
 import { userApi } from '../../api/user'
+import { auth } from '../../utils/auth'
 
 import './index.scss'
 
 function EditProfile() {
-  const { userInfo, setUserInfo } = useUserStore()
+  const { userInfo, setUserInfo, isLoggedIn } = useUserStore()
   const [nickname, setNickname] = useState(userInfo.name)
   const [gender, setGender] = useState(userInfo.gender || 'male')
-  const [birthday, setBirthday] = useState(userInfo.birthday || '2000-1-1')
+  const [birthday, setBirthday] = useState(userInfo.birthday || '2000-01-01')
   const [avatarUrl, setAvatarUrl] = useState(userInfo.avatarUrl || '/assets/tabbar/user.png')
   const [showActionSheet, setShowActionSheet] = useState(false)
   const [showNicknameButton, setShowNicknameButton] = useState(false)
@@ -24,12 +25,17 @@ function EditProfile() {
   }, [])
 
   const fetchUserInfo = async () => {
+    if (!isLoggedIn) {
+      setLoading(false)
+      return
+    }
+
     try {
       const res = await userApi.getUserInfo()
       const userData = res.data
       setNickname(userData.name)
       setGender(userData.gender || 'male')
-      const birthdayValue = userData.birthday ? userData.birthday.split('T')[0] : ''
+      const birthdayValue = userData.birthday ? userData.birthday.split('T')[0] : '2000-01-01'
       setBirthday(birthdayValue)
       setAvatarUrl(userData.avatar_url || '/assets/tabbar/user.png')
       
@@ -148,6 +154,14 @@ function EditProfile() {
   const handleSave = async () => {
     if (saving) return
     
+    if (!nickname.trim()) {
+      Taro.showToast({
+        title: '请输入昵称',
+        icon: 'none'
+      })
+      return
+    }
+    
     setSaving(true)
     Taro.showLoading({ title: '保存中...' })
     
@@ -163,30 +177,49 @@ function EditProfile() {
           finalAvatarUrl = await userApi.uploadAvatar(finalAvatarUrl)
         }
       }
+
+      const finalBirthday = birthday || '2000-01-01'
       
-      await userApi.updateUserInfo({
-        name: nickname || '未设置',
-        gender: gender,
-        avatar_url: finalAvatarUrl,
-        birthday: birthday || ''
-      })
-      
-      setUserInfo({
-        id: userInfo.id,
-        name: nickname || '未设置',
-        gender: gender,
-        avatarUrl: finalAvatarUrl,
-        birthday: birthday || ''
-      })
+      if (!isLoggedIn) {
+        const loginRes = await auth.login()
+        
+        await userApi.updateUserInfo({
+          name: nickname,
+          gender: gender,
+          avatar_url: finalAvatarUrl,
+          birthday: finalBirthday
+        })
+        
+        setUserInfo({
+          id: loginRes.user.id,
+          name: nickname,
+          gender: gender,
+          avatarUrl: finalAvatarUrl || '/assets/tabbar/user.png',
+          birthday: finalBirthday
+        })
+      } else {
+        await userApi.updateUserInfo({
+          name: nickname,
+          gender: gender,
+          avatar_url: finalAvatarUrl,
+          birthday: finalBirthday
+        })
+        
+        setUserInfo({
+          id: userInfo.id,
+          name: nickname,
+          gender: gender,
+          avatarUrl: finalAvatarUrl,
+          birthday: finalBirthday
+        })
+      }
       
       Taro.hideLoading()
       Taro.showToast({
         title: '保存成功',
         icon: 'success'
       })
-      setTimeout(() => {
-        Taro.navigateBack()
-      }, 1500)
+      Taro.navigateBack()
     } catch (error) {
       Taro.hideLoading()
       Taro.showToast({

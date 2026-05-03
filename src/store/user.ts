@@ -7,7 +7,7 @@ const defaultUserInfo: UserInfo = {
   name: '游客',
   gender: 'male',
   avatarUrl: '/assets/tabbar/user.png',
-  birthday: '',
+  birthday: '2000-01-01',
 };
 
 const useUserStore = create<UserStoreState>((set, get) => ({

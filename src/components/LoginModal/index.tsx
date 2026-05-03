@@ -62,7 +62,7 @@ function LoginModal({ visible, onClose }: LoginModalProps) {
         name: nickname,
         gender: loginRes.user.gender || 'male',
         avatar_url: finalAvatarUrl,
-        birthday: loginRes.user.birthday ? loginRes.user.birthday.split('T')[0] : ''
+        birthday: loginRes.user.birthday ? loginRes.user.birthday.split('T')[0] : '2000-01-01'
       })
 
       setUserInfo({
@@ -70,7 +70,7 @@ function LoginModal({ visible, onClose }: LoginModalProps) {
         name: nickname,
         gender: loginRes.user.gender || 'male',
         avatarUrl: finalAvatarUrl || '/assets/tabbar/user.png',
-        birthday: loginRes.user.birthday ? loginRes.user.birthday.split('T')[0] : ''
+        birthday: loginRes.user.birthday ? loginRes.user.birthday.split('T')[0] : '2000-01-01'
       })
 
       Taro.hideLoading()
@@ -97,8 +97,8 @@ function LoginModal({ visible, onClose }: LoginModalProps) {
   if (!visible) return null
 
   return (
-    <View className='login-modal-mask' onClick={(e) => e.stopPropagation()}>
-      <View className='login-modal'>
+    <View className='login-modal-mask' catchMove onClick={onClose}>
+      <View className='login-modal' onClick={(e) => e.stopPropagation()}>
         <View className='modal-header'>
           <Text className='modal-title'>欢迎登录</Text>
           <Text className='modal-desc'>完善信息以获得更好体验</Text>
