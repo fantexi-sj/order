@@ -51,6 +51,7 @@ function BrowseMenuList() {
 
   useDidShow(() => {
     getOrderType()
+    fetchCartList()
     checkShowCartPanel()
     refreshDataInBackground()
   })

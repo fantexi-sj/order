@@ -1,0 +1,256 @@
+@import '../../styles/variables.scss';
+
+.exchange-detail {
+  min-height: 100vh;
+  background: $bg-color;
+  padding: 24rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 200rpx 0;
+}
+
+.loading-text {
+  font-size: $font-size-md;
+  color: $text-light;
+}
+
+.status-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60rpx 32rpx 40rpx;
+  background: #FFFFFF;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: 24rpx;
+}
+
+.status-icon {
+  margin-bottom: 24rpx;
+}
+
+.status-title {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: $text-primary;
+  margin-bottom: 16rpx;
+  letter-spacing: 2rpx;
+}
+
+.product-name-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: $text-secondary;
+  margin-bottom: 8rpx;
+  text-align: center;
+}
+
+.dish-name-subtitle {
+  font-size: 28rpx;
+  color: $text-light;
+  text-align: center;
+}
+
+.qrcode-card {
+  background: #FFFFFF;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-card;
+  padding: 40rpx 32rpx;
+  margin-bottom: 24rpx;
+}
+
+.qrcode-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 32rpx;
+  position: relative;
+  width: 320rpx;
+  height: 320rpx;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.qrcode-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 320rpx;
+  height: 320rpx;
+  border: 2rpx solid #E0E0E0;
+  border-radius: $border-radius-md;
+}
+
+.qrcode-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 320rpx;
+  height: 320rpx;
+  border: 2rpx solid #E0E0E0;
+  border-radius: $border-radius-md;
+  z-index: 1;
+}
+
+.exchange-code-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.code-label {
+  font-size: 28rpx;
+  color: $text-secondary;
+  font-weight: 500;
+}
+
+.code-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.code-value {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: $primary-color;
+  letter-spacing: 1rpx;
+  word-break: break-all;
+  max-width: 400rpx;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+}
+
+.copy-btn {
+  padding: 8rpx 20rpx;
+  background: $primary-color;
+  border-radius: 20rpx;
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
+
+.copy-btn-text {
+  font-size: 24rpx;
+  color: #FFFFFF;
+  font-weight: 500;
+}
+
+.detail-card {
+  background: #FFFFFF;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-card;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+}
+
+.product-info {
+  display: flex;
+  gap: 24rpx;
+  padding-bottom: 32rpx;
+  border-bottom: 1rpx solid #F0F0F0;
+  margin-bottom: 32rpx;
+}
+
+.product-image {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: $border-radius-md;
+  flex-shrink: 0;
+}
+
+.product-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12rpx;
+}
+
+.dish-price {
+  font-size: $font-size-md;
+  color: #FF9800;
+  font-weight: 600;
+}
+
+.info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-label-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.info-label {
+  font-size: $font-size-md;
+  color: $text-secondary;
+}
+
+.info-value {
+  font-size: $font-size-md;
+  color: $text-primary;
+  font-weight: 500;
+  
+  &.code-text {
+    font-size: 22rpx;
+    font-weight: 600;
+    color: $primary-color;
+    letter-spacing: 0.5rpx;
+    word-break: break-all;
+    max-width: 380rpx;
+    text-align: right;
+    font-family: 'Courier New', monospace;
+  }
+  
+  &.points {
+    font-size: $font-size-lg;
+    font-weight: 700;
+    color: #FF9800;
+  }
+}
+
+.tips-card {
+  background: #FFFFFF;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-card;
+  padding: 32rpx;
+  
+  &.expired {
+    background: #FFF3E0;
+  }
+}
+
+.tips-title {
+  font-size: $font-size-lg;
+  font-weight: 700;
+  color: $text-primary;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.tips-text {
+  font-size: $font-size-md;
+  color: $text-secondary;
+  line-height: 1.8;
+  display: block;
+  margin-bottom: 8rpx;
+}

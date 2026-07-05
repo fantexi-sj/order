@@ -254,6 +254,13 @@ function OrderDetail() {
               <Text className='info-value'>{order.table_number || '-'}</Text>
             </View>
           )}
+
+          {order.order_type === 'takeaway' && order.contact_phone && (
+            <View className='info-row'>
+              <Text className='info-label'>联系电话</Text>
+              <Text className='info-value'>{order.contact_phone}</Text>
+            </View>
+          )}
         </View>
 
         <View className='info-section'>

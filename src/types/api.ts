@@ -29,10 +29,24 @@ export interface UpdateUserInfoRequest {
   birthday?: string
 }
 
+export interface MemberData {
+  points: number
+  total_points: number
+  balance: number
+  gift_balance: number
+  total_recharge: number
+  total_gift: number
+  total_orders: number
+  total_spent: number
+  status: number
+}
+
 export interface UserInfoResponse {
   id: number
   name: string
   gender: 'male' | 'female'
   avatar_url: string
   birthday: string
+  created_at?: string
+  member?: MemberData | null
 }

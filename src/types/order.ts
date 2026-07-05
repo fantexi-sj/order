@@ -56,7 +56,7 @@ export interface Order {
   order_type?: OrderType
   table_number?: string
   pickup_time?: string
-  phone?: string
+  contact_phone?: string
 }
 
 export interface OrderCreateParams {
@@ -66,7 +66,7 @@ export interface OrderCreateParams {
   order_type?: OrderType
   table_number?: string
   pickup_time?: string
-  phone?: string
+  contact_phone?: string
 }
 
 export interface OrderCreateResponse {

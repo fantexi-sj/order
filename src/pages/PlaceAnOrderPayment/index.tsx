@@ -21,7 +21,7 @@ function PlaceAnOrderPayment() {
 
   const [orderType, setOrderType] = useState<OrderType>('takeaway')
   const [pickupTimeText, setPickupTimeText] = useState('现在取单')
-  const [phone, setPhone] = useState('')
+  const [contactPhone, setContactPhone] = useState('')
   const [remark, setRemark] = useState('')
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('wechat')
   const [showTimePicker, setShowTimePicker] = useState(false)
@@ -131,7 +131,7 @@ function PlaceAnOrderPayment() {
 
   /** 处理手机号输入失焦校验 */
   const handlePhoneBlur = () => {
-    if (phone && !validatePhone(phone)) {
+    if (contactPhone && !validatePhone(contactPhone)) {
       Taro.showToast({ title: '请输入正确的手机号', icon: 'none' })
     }
   }
@@ -161,11 +161,11 @@ function PlaceAnOrderPayment() {
       return
     }
 
-    if (orderType === 'takeaway' && !phone) {
+    if (orderType === 'takeaway' && !contactPhone) {
       Taro.showToast({ title: '请填写预留电话', icon: 'none' })
       return
     }
-    if (orderType === 'takeaway' && phone && !validatePhone(phone)) {
+    if (orderType === 'takeaway' && contactPhone && !validatePhone(contactPhone)) {
       Taro.showToast({ title: '手机号格式不正确', icon: 'none' })
       return
     }
@@ -185,7 +185,7 @@ function PlaceAnOrderPayment() {
         cart_ids: cartIds.join(','),
         remark: remark || undefined,
         order_type: orderType,
-        phone: phone || undefined
+        contact_phone: contactPhone || undefined
       })
 
       if (createRes.code !== 200) {
@@ -274,8 +274,8 @@ function PlaceAnOrderPayment() {
                 type='number'
                 maxlength={11}
                 placeholder='请填写手机号'
-                value={phone}
-                onInput={(e) => setPhone(e.detail.value)}
+                value={contactPhone}
+                onInput={(e) => setContactPhone(e.detail.value)}
                 onBlur={handlePhoneBlur}
               />
             </View>

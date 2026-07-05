@@ -1,6 +1,6 @@
 import { View, Text, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { Gift, MapPin, FileText, Phone, Globe, Wine } from 'lucide-react-taro'
+import { Gift, MapPin, FileText, Phone, Globe, Sparkles,Wine } from 'lucide-react-taro'
 import useUserStore from '../../store/user'
 
 import './index.scss'
@@ -26,8 +26,8 @@ function CheckOrderStatus() {
       case 'language':
         Taro.showToast({ title: '切换语言', icon: 'none' })
         break
-      case 'storage':
-        Taro.showToast({ title: '我的寄存', icon: 'none' })
+      case 'points':
+        Taro.navigateTo({ url: '/pages/PointsMall/index' })
         break
       case 'login':
         handleLogout()
@@ -166,11 +166,11 @@ function CheckOrderStatus() {
             <Text className='service-label'>切换语言</Text>
           </View>
 
-          <View className='service-item' onClick={() => handleServiceClick('storage')}>
+          <View className='service-item' onClick={() => handleServiceClick('points')}>
             <View className='service-icon'>
-              <Wine size={24} color='#000' />
+              <Sparkles size={24} color='#000' />
             </View>
-            <Text className='service-label'>我的寄存</Text>
+            <Text className='service-label'>积分商城</Text>
           </View>
           <View className='service-item' onClick={() => handleServiceClick('login')}>
             <View className='service-icon'>

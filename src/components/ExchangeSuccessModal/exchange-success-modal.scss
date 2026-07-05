@@ -1,0 +1,163 @@
+@import '../../styles/variables.scss';
+
+.exchange-success-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  position: relative;
+  width: 600rpx;
+  background: #FFFFFF;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  padding: 32rpx;
+  text-align: center;
+  background: linear-gradient(135deg, $primary-color 0%, #FF9800 100%);
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 2rpx;
+}
+
+.modal-body {
+  padding: 40rpx 32rpx;
+}
+
+.qrcode-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 32rpx;
+  position: relative;
+  width: 320rpx;
+  height: 320rpx;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.qrcode-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 320rpx;
+  height: 320rpx;
+  border: 2rpx solid #E0E0E0;
+  border-radius: $border-radius-md;
+}
+
+.qrcode-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 320rpx;
+  height: 320rpx;
+  border: 2rpx solid #E0E0E0;
+  border-radius: $border-radius-md;
+  z-index: 1;
+}
+
+.exchange-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.info-label {
+  font-size: 28rpx;
+  color: $text-secondary;
+  min-width: 140rpx;
+}
+
+.info-value {
+  font-size: 28rpx;
+  color: $text-primary;
+  flex: 1;
+  word-break: break-all;
+}
+
+.code-value {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: $primary-color;
+  letter-spacing: 1rpx;
+}
+
+.points-value {
+  color: #FF6B6B;
+  font-weight: 600;
+}
+
+.copy-btn {
+  padding: 8rpx 20rpx;
+  background: $primary-color;
+  border-radius: 20rpx;
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
+
+.copy-btn-text {
+  font-size: 24rpx;
+  color: #FFFFFF;
+  font-weight: 500;
+}
+
+.modal-footer {
+  padding: 24rpx 32rpx 32rpx;
+}
+
+.confirm-btn {
+  width: 100%;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, $primary-color 0%, #FF9800 100%);
+  border-radius: $border-radius-md;
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+.confirm-btn-text {
+  font-size: 32rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+}

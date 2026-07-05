@@ -18,8 +18,12 @@ export const userApi = {
     }, false)
   },
 
-  getUserInfo: () => {
-    return request.get<UserInfoResponse>('/user/info')
+  getUserInfo: (withMember: boolean = false) => {
+    const params: Record<string, any> = {}
+    if (withMember) {
+      params.merchant_id = MERCHANT_ID
+    }
+    return request.get<UserInfoResponse>('/user/info', params)
   },
 
   updateUserInfo: (data: UpdateUserInfoRequest) => {

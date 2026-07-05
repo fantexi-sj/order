@@ -8,6 +8,8 @@ export default defineAppConfig({
     'pages/EditProfile/index',
     'pages/OrderDetail/index',
     'pages/SearchDish/index',
+    'pages/PointsMall/index',
+    'pages/ExchangeDetail/index',
   ],
   window: {
     backgroundTextStyle: 'light',

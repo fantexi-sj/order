@@ -24,13 +24,17 @@ function ShoppingCart() {
   const { orderList, pagination, currentStatus, setOrderList, setPagination, setCurrentStatus } =
     useOrderStore()
   const { getShopName } = useShopStore()
-  const { isLoggedIn } = useUserStore()
+  const { isLoggedIn, setIsLoggedIn } = useUserStore()
   const [loading, setLoading] = useState(false)
   const [expandedOrders, setExpandedOrders] = useState<Set<number>>(new Set())
 
-  useDidShow(() => {
-    if (isLoggedIn) {
-      fetchOrderList(true)
+  useDidShow(async () => {
+    const token = await storage.getToken()
+    if (token) {
+      if (!isLoggedIn) {
+        setIsLoggedIn(true)
+      }
+      fetchOrderList(true, currentStatus === undefined ? 'ALL' : currentStatus)
     }
   })
 

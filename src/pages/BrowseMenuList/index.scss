@@ -905,7 +905,7 @@
 /* ========== 购物车底部栏 ========== */
 .cart-bar {
   position: fixed;
-  bottom: calc(-30rpx + env(safe-area-inset-bottom) );
+  bottom: calc(30rpx + env(safe-area-inset-bottom) );
   left: 24rpx;
   right: 24rpx;
   height: 100rpx;

@@ -29,6 +29,7 @@ function Index() {
     }
 
     try {
+      
       const res = await merchantApi.getMerchantInfo()
       if (pageCache.isDifferent('merchant_info', res.data)) {
         setShopInfo(res.data)
@@ -38,7 +39,6 @@ function Index() {
       console.log('获取商家信息失败:', error)
     }
   }
-
   const checkLoginStatus = async () => {
     const token = await storage.getToken()
     

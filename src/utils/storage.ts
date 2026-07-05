@@ -7,6 +7,27 @@ const ORDER_TYPE_KEY = 'orderType'
 const SHOW_CART_PANEL_KEY = 'showCartPanel'
 
 export const storage = {
+  get: async <T = any>(key: string): Promise<T | null> => {
+    try {
+      const res = await Taro.getStorage({ key })
+      return res.data || null
+    } catch {
+      return null
+    }
+  },
+
+  set: async (key: string, data: any): Promise<void> => {
+    await Taro.setStorage({ key, data })
+  },
+
+  remove: async (key: string): Promise<void> => {
+    try {
+      await Taro.removeStorage({ key })
+    } catch (error) {
+      console.error(`移除 ${key} 失败:`, error)
+    }
+  },
+
   setToken: async (token: string): Promise<void> => {
     await Taro.setStorage({ key: TOKEN_KEY, data: token })
   },
